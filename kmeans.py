@@ -20,11 +20,6 @@ sample_size = 500
 number_of_clusters = 2
 number_of_runs = 10
 
-#load_boston([return_X_y])	Load and return the boston house-prices dataset (regression).
-#load_iris([return_X_y])	Load and return the iris dataset (classification).
-#load_diabetes([return_X_y])	Load and return the diabetes dataset (regression).
-#load_digits([n_class, return_X_y])	Load and return the digits dataset (classification).
-#load_linnerud([return_X_y])	Load and return the linnerud dataset (multivariate regression).
 
 
 ##Base code##
@@ -32,7 +27,7 @@ number_of_runs = 10
 # Set seeds 
 np.random.seed(seed)
 
-# load toy data (numpy array from sklearn library in this case)
+# load toy data (Iris flower numpy array from sklearn library in this case)
 digits = load_iris()
 data = scale(digits.data)
 
