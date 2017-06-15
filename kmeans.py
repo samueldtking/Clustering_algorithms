@@ -1,35 +1,61 @@
-print(__doc__)
+## KMEANS TEMPLATE (Python)
 
+
+# Import modules 
 from time import time
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 from sklearn import metrics
 from sklearn.cluster import KMeans
-from sklearn.datasets import load_digits
+from sklearn.datasets import *
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 
-np.random.seed(42)
+#### USER INPUTS ####
+seed = random.randint(0,1000)
+sample_size = 500
+number_of_clusters = 2
+number_of_runs = 10
 
-digits = load_digits()
+#load_boston([return_X_y])	Load and return the boston house-prices dataset (regression).
+#load_iris([return_X_y])	Load and return the iris dataset (classification).
+#load_diabetes([return_X_y])	Load and return the diabetes dataset (regression).
+#load_digits([n_class, return_X_y])	Load and return the digits dataset (classification).
+#load_linnerud([return_X_y])	Load and return the linnerud dataset (multivariate regression).
+
+
+##Base code##
+
+# Set seeds 
+np.random.seed(seed)
+
+# load toy data (numpy array from sklearn library in this case)
+digits = load_iris()
 data = scale(digits.data)
 
+# convert numpy to panda (as more common input use - all variables floats)
+df = pd.DataFrame(data)
+print(df.shape)
+data = df
+
+# create labels 
 n_samples, n_features = data.shape
-n_digits = len(np.unique(digits.target))
+n_clusters = number_of_clusters
 labels = digits.target
 
-sample_size = 300
-
-print("n_digits: %d, \t n_samples %d, \t n_features %d"
-      % (n_digits, n_samples, n_features))
+# print shape of dataset 
+print("n_clusters: %d, \t n_samples %d, \t n_features %d"
+      % (n_clusters, n_samples, n_features))
 
 
 print(79 * '_')
 print('% 9s' % 'init'
       '    time  inertia    homo   compl  v-meas     ARI AMI  silhouette')
 
-
+# define UDF for kmeans 
 def bench_k_means(estimator, name, data):
     t0 = time()
     estimator.fit(data)
@@ -44,25 +70,27 @@ def bench_k_means(estimator, name, data):
                                       metric='euclidean',
                                       sample_size=sample_size)))
 
-bench_k_means(KMeans(init='k-means++', n_clusters=n_digits, n_init=10),
+# initialize Kmeans++ algorithm 
+bench_k_means(KMeans(init='k-means++', n_clusters=n_clusters, n_init=number_of_runs),
               name="k-means++", data=data)
 
-bench_k_means(KMeans(init='random', n_clusters=n_digits, n_init=10),
+bench_k_means(KMeans(init='random', n_clusters=n_clusters, n_init=number_of_runs),
               name="random", data=data)
 
-# in this case the seeding of the centers is deterministic, hence we run the
-# kmeans algorithm only once with n_init=1
-pca = PCA(n_components=n_digits).fit(data)
-bench_k_means(KMeans(init=pca.components_, n_clusters=n_digits, n_init=1),
+# in the case seed is set to a deterministic number, n_init need only be run one as there will be no change
+pca = PCA(n_components=n_clusters).fit(data)
+bench_k_means(KMeans(init=pca.components_, n_clusters=n_clusters, n_init=number_of_runs),
               name="PCA-based",
               data=data)
 print(79 * '_')
 
 
-##Visualize the results on PCA-reduced data
+
+
+##Visualizing the results on a PCA-reduced surface##
 
 reduced_data = PCA(n_components=2).fit_transform(data)
-kmeans = KMeans(init='k-means++', n_clusters=n_digits, n_init=10)
+kmeans = KMeans(init='k-means++', n_clusters=n_clusters, n_init=number_of_runs)
 kmeans.fit(reduced_data)
 
 # Step size of the mesh. Decrease to increase the quality of the VQ.
@@ -85,12 +113,12 @@ plt.imshow(Z, interpolation='nearest',
            cmap=plt.cm.Paired,
            aspect='auto', origin='lower')
 
-plt.plot(reduced_data[:, 0], reduced_data[:, 1], 'k.', markersize=2)
+plt.plot(reduced_data[:, 0], reduced_data[:, 1], 'k.', markersize=2,color='k')
 # Plot the centroids as a white X
 centroids = kmeans.cluster_centers_
 plt.scatter(centroids[:, 0], centroids[:, 1],
             marker='x', s=169, linewidths=3,
-            color='w', zorder=10)
+            color='w', zorder=number_of_clusters)
 plt.title('K-means clustering on the digits dataset (PCA-reduced data)\n'
           'Centroids are marked with white cross')
 plt.xlim(x_min, x_max)
