@@ -20,6 +20,13 @@ sample_size = 500
 number_of_clusters = 2
 number_of_runs = 10
 
+## PARAMETER TUNNING ###
+algorithm='auto' 
+max_iter=300
+tol=0.0001
+precompute_distances='auto' 
+n_jobs=1
+#document:   http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
 
 
 ##Base code##
@@ -65,16 +72,29 @@ def bench_k_means(estimator, name, data):
                                       metric='euclidean',
                                       sample_size=sample_size)))
 
-# initialize Kmeans++ algorithm 
-bench_k_means(KMeans(init='k-means++', n_clusters=n_clusters, n_init=number_of_runs),
-              name="k-means++", data=data)
+# initialize K-means algorithm with centroids placed using K-mean++
+bench_k_means(KMeans(init='k-means++', n_clusters=n_clusters, 
+                     n_init=number_of_runs, 
+                     algorithm=algorithm, 
+                     max_iter=max_iter, 
+                     tol=tol, 
+                     precompute_distances=precompute_distances, 
+                     n_jobs=n_jobs),
+            name="k-means++", data=data)
 
-bench_k_means(KMeans(init='random', n_clusters=n_clusters, n_init=number_of_runs),
-              name="random", data=data)
+
+
+
 
 # in the case seed is set to a deterministic number, n_init need only be run one as there will be no change
 pca = PCA(n_components=n_clusters).fit(data)
-bench_k_means(KMeans(init=pca.components_, n_clusters=n_clusters, n_init=number_of_runs),
+bench_k_means(KMeans(init='k-means++', n_clusters=n_clusters, 
+                     n_init=number_of_runs, 
+                     algorithm=algorithm, 
+                     max_iter=max_iter, 
+                     tol=tol, 
+                     precompute_distances=precompute_distances, 
+                     n_jobs=n_jobs),
               name="PCA-based",
               data=data)
 print(79 * '_')
