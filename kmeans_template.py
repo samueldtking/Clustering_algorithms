@@ -114,11 +114,11 @@ centroids = kmeans.cluster_centers_
 plt.scatter(centroids[:, 0], centroids[:, 1],
             marker='x', s=169, linewidths=3,
             color='w', zorder=number_of_clusters)
-plt.title('K-means clustering on the digits dataset (PCA-reduced data)\n'
+plt.title('K-means clustering on the Iris dataset (PCA-reduced data)\n'
           'Centroids are marked with white cross')
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.xticks(())
 plt.yticks(())
-plt.savefig('cluster_image.png', bbox_inches='tight')
+plt.show()
 
